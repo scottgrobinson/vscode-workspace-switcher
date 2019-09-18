@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as mkdirp from 'mkdirp';
 import * as util from './util';
 import { WorkspaceEntry } from './model/workspace-entry';
-import { TreeItem } from './tree-view/explorer/tree-item';
+import { WorkspaceEntryTreeItem } from './tree-view/explorer/workspace-entry-tree-item';
 import { TreeDataProvider } from './tree-view/explorer/tree-data-provider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -14,36 +14,56 @@ export function activate(context: vscode.ExtensionContext) {
 
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.saveWorkspace',
     () => saveWorkspacePrompt()));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.switchWorkspace',
     (workspaceEntry?: WorkspaceEntry) => workspaceEntry
       ? util.switchToWorkspace(workspaceEntry, false)
       : switchWorkspacePrompt(false)));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.switchWorkspaceNewWindow',
-    (treeItem?: TreeItem) => treeItem
-      ? util.switchToWorkspace(treeItem.workspaceEntry, true)
+    (workspaceEntryTreeItem?: WorkspaceEntryTreeItem) => workspaceEntryTreeItem
+      ? util.switchToWorkspace(workspaceEntryTreeItem.workspaceEntry, true)
       : switchWorkspacePrompt(true)));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.deleteWorkspace',
-    (treeItem?: TreeItem) => treeItem
-      ? util.deleteWorkspace(treeItem.workspaceEntry, true)
+    (workspaceEntryTreeItem?: WorkspaceEntryTreeItem) => workspaceEntryTreeItem
+      ? util.deleteWorkspace(workspaceEntryTreeItem.workspaceEntry, true)
       : deleteWorkspacePrompt()));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.reloadWorkspaces',
     () => util.refreshTreeData()));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.closeWorkspace',
     () => util.closeWorkspace()));
+
+  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.showListView',
+    () => util.setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(false)));
+
+  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.showTreeView',
+    () => util.setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(true)));
+
   disposables.push(util.listenForConfigurationChanges());
 
   const treeDataProvider = new TreeDataProvider();
 
   vscode.window.registerTreeDataProvider('vscodeWorkspaceSwitcherViewInActivityBar', treeDataProvider);
+
   vscode.window.registerTreeDataProvider('vscodeWorkspaceSwitcherViewInExplorer', treeDataProvider);
 
-  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.treeData.refresh', () => treeDataProvider.refresh()));
+  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.treeData.refresh', () =>
+    treeDataProvider.refresh()));
 
   context.subscriptions.push(...disposables);
 
   util.setVSCodeWorkspaceSwitcherViewContainersShow();
+
   util.setVSCodeWorkspaceSwitcherViewInActivityBarShow();
+
   util.setVSCodeWorkspaceSwitcherViewInExplorerShow();
+
+  util.setVSCodeWorkspaceSwitcherViewContainerTreeViewShow();
+
+  util.setVSCodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow();
 }
 
 export function deactivate() { }

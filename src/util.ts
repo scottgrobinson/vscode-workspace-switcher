@@ -8,8 +8,8 @@ import * as process from 'process';
 import * as glob from 'fast-glob';
 import { WorkspaceEntry } from './model/workspace-entry';
 
-export function getWorkspaceEntryDirectories(): path.ParsedPath[] {
-  var paths = <string[]>vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('paths');
+export function getWorkspaceEntryDirectories(paths: string[] = null): path.ParsedPath[] {
+  paths = paths || <string[]>vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('paths');
 
   if (!paths || !paths.length) {
     return [];
@@ -46,14 +46,21 @@ export function getWorkspaceEntryDirectories(): path.ParsedPath[] {
     })
     .reduce((acc: {}, path: string) => (acc[path] = true, acc), {});
 
-  return Object.keys(pathsAfterGlobbingHash).sort().map(path.parse);
+  return Object.keys(pathsAfterGlobbingHash)
+    .map(path.parse)
+    .sort((a: path.ParsedPath, b: path.ParsedPath) => {
+      const aParsed = path.format(a);
+      const bParsed = path.format(b);
+
+      return aParsed.localeCompare(bParsed);
+    });
 }
 
-export function gatherWorkspaceEntries(): WorkspaceEntry[] {
-  const directoryPaths = getWorkspaceEntryDirectories();
+export function gatherWorkspaceEntries(paths: string[] = null): WorkspaceEntry[] {
+  const directoryParsedPaths = getWorkspaceEntryDirectories(paths);
   const uniqueWorkspaceEntries = {};
 
-  return (<WorkspaceEntry[]>directoryPaths.reduce((acc: WorkspaceEntry[], dir: path.ParsedPath) => {
+  return (directoryParsedPaths.reduce((acc: WorkspaceEntry[], dir: path.ParsedPath) => {
     const dirFormatted = path.format(dir);
 
     return fs.readdirSync(dirFormatted)
@@ -72,7 +79,7 @@ export function gatherWorkspaceEntries(): WorkspaceEntry[] {
 
         return accProxy;
       }, acc);
-  }, <WorkspaceEntry[]>[]))
+  }, []))
     .filter(workspaceEntry => {
       if (uniqueWorkspaceEntries[workspaceEntry.path]) {
         return false;
@@ -82,7 +89,7 @@ export function gatherWorkspaceEntries(): WorkspaceEntry[] {
 
       return true;
     })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a: WorkspaceEntry, b: WorkspaceEntry) => a.name.localeCompare(b.name));
 }
 
 export function getFirstWorkspaceFolderName(): string {
@@ -149,6 +156,12 @@ export function listenForConfigurationChanges(): vscode.Disposable {
       setVSCodeWorkspaceSwitcherViewInActivityBarShow();
     } else if (event.affectsConfiguration('vscodeWorkspaceSwitcher.showInExplorer')) {
       setVSCodeWorkspaceSwitcherViewInExplorerShow();
+    } else if (event.affectsConfiguration('vscodeWorkspaceSwitcher.showDeleteWorkspaceButton')) {
+      setVSCodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow();
+
+      refreshTreeData();
+    } else if (event.affectsConfiguration('vscodeWorkspaceSwitcher.showTreeView')) {
+      refreshTreeData();
     }
   });
 }
@@ -174,6 +187,28 @@ export function setVSCodeWorkspaceSwitcherViewInExplorerShow() {
 
   vscode.commands.executeCommand('setContext', 'vscodeWorkspaceSwitcherViewInExplorerShow',
     vscodeWorkspaceSwitcherViewInExplorerShow);
+}
+
+export function setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(value?: boolean) {
+  if (value === undefined || value === null) {
+    value = getVSCodeWorkspaceSwitcherViewContainerTreeViewShow();
+
+    vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').update('showTreeView', value, true);
+  }
+
+  vscode.commands.executeCommand('setContext', 'vscodeWorkspaceSwitcherViewContainerTreeViewShow', value);
+}
+
+export function getVSCodeWorkspaceSwitcherViewContainerTreeViewShow(): boolean {
+  return !!vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('showTreeView');
+}
+
+export function setVSCodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow() {
+  const vscodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow =
+    !!vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('showDeleteWorkspaceButton');
+
+  vscode.commands.executeCommand('setContext', 'vscodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow',
+    vscodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow);
 }
 
 export function refreshTreeData() {
