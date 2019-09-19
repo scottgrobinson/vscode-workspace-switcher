@@ -1,6 +1,6 @@
+'use strict';
+
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 import * as util from '../../util';
 import { TreeItem } from './tree-item';
 import { WorkspaceEntry } from '../../model/workspace-entry';

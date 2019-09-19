@@ -1,12 +1,14 @@
-import { existsSync, readdirSync, statSync, unlinkSync } from 'fs';
-import { join, dirname } from 'path';
-import { exec } from 'child_process';
+'use strict';
+
+import * as fs from 'fs';
+import * as path from 'path';
+import * as childProcess from 'child_process';
 import * as vscode from 'vscode';
 import * as process from 'process';
 import * as glob from 'fast-glob';
 import { WorkspaceEntry } from './model/workspace-entry';
 
-export function getWorkspaceEntryDirectories(): string[] {
+export function getWorkspaceEntryDirectories(): path.ParsedPath[] {
   var paths = <string[]>vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('paths');
 
   if (!paths || !paths.length) {
@@ -37,34 +39,36 @@ export function getWorkspaceEntryDirectories(): string[] {
     .concat(uniquePaths.map(p => p.replace(/(:?\*\*?\/?)+$/, '')))
     .filter(p => {
       try {
-        return existsSync(p) && statSync(p).isDirectory();
+        return fs.existsSync(p) && fs.statSync(p).isDirectory();
       } catch (err) {
         return false;
       }
     })
     .reduce((acc: {}, path: string) => (acc[path] = true, acc), {});
 
-  return Object.keys(pathsAfterGlobbingHash).sort();
+  return Object.keys(pathsAfterGlobbingHash).sort().map(path.parse);
 }
 
 export function gatherWorkspaceEntries(): WorkspaceEntry[] {
   const directoryPaths = getWorkspaceEntryDirectories();
   const uniqueWorkspaceEntries = {};
 
-  return (<WorkspaceEntry[]>directoryPaths.reduce((acc: WorkspaceEntry[], dir: string) => {
-    return readdirSync(dir)
+  return (<WorkspaceEntry[]>directoryPaths.reduce((acc: WorkspaceEntry[], dir: path.ParsedPath) => {
+    const dirFormatted = path.format(dir);
+
+    return fs.readdirSync(dirFormatted)
       .filter(fileName => {
         try {
-          return /.code-workspace$/.test(fileName) && statSync(join(dir, fileName)).isFile();
+          return /.code-workspace$/.test(fileName) && fs.statSync(path.join(dirFormatted, fileName)).isFile();
         } catch (err) {
           return false;
         }
       })
       .reduce((accProxy: WorkspaceEntry[], fileName: string) => {
-        accProxy.push({
-          name: fileName.replace(/.code-workspace$/, ''),
-          path: join(dir, fileName),
-        });
+        const name = fileName.replace(/.code-workspace$/, '');
+        const parsedPath = path.parse(path.join(dirFormatted, fileName))
+
+        accProxy.push(new WorkspaceEntry(name, parsedPath));
 
         return accProxy;
       }, acc);
@@ -88,7 +92,7 @@ export function getFirstWorkspaceFolderName(): string {
 export function switchToWorkspace(workspaceEntry: WorkspaceEntry, inNewWindow: boolean = false) {
   const app = getApp();
   const command = `${app} ${inNewWindow ? '-n' : '-r'} "${workspaceEntry.path}"`;
-  exec(command, onCommandRun);
+  childProcess.exec(command, onCommandRun);
 }
 
 export function deleteWorkspace(workspaceEntry: WorkspaceEntry, prompt: boolean) {
@@ -100,13 +104,13 @@ export function deleteWorkspace(workspaceEntry: WorkspaceEntry, prompt: boolean)
             return;
           }
 
-          unlinkSync(workspaceEntry.path);
+          fs.unlinkSync(workspaceEntry.path);
 
           refreshTreeData();
         },
         (reason: any) => { });
   } else {
-    unlinkSync(workspaceEntry.path);
+    fs.unlinkSync(workspaceEntry.path);
   }
 }
 
@@ -119,9 +123,9 @@ export function getApp() {
   }
 
   if (app === 'code' && process.platform.toLocaleLowerCase().startsWith("win")) {
-    const codeWindowsScriptPath = join(dirname(process.execPath), 'bin', 'code.cmd');
+    const codeWindowsScriptPath = path.join(path.dirname(process.execPath), 'bin', 'code.cmd');
 
-    if (existsSync(codeWindowsScriptPath) && statSync(codeWindowsScriptPath).isFile()) {
+    if (fs.existsSync(codeWindowsScriptPath) && fs.statSync(codeWindowsScriptPath).isFile()) {
       return `"${codeWindowsScriptPath}"`;
     }
   }

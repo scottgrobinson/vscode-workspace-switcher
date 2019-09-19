@@ -1,7 +1,7 @@
 'use strict';
 
-import { existsSync, writeFileSync } from 'fs';
-import { join, dirname, basename } from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import * as mkdirp from 'mkdirp';
 import * as util from './util';
@@ -58,8 +58,8 @@ function saveWorkspacePrompt() {
   }
 
   const directoryItems = workspaceEntryDirectories.map(directory => <vscode.QuickPickItem>{
-    label: basename(directory),
-    description: dirname(directory),
+    label: directory.base,
+    description: directory.dir,
   });
 
   const options = <vscode.QuickPickOptions>{
@@ -87,12 +87,12 @@ function saveWorkspacePrompt() {
 
           workspaceFileName = workspaceFileName.replace(/\\+/g, '/').replace(/\/\/+/g, '/').replace(/^\//, '');
 
-          workspaceFileName = join(...workspaceFileName.split(/\//));
+          workspaceFileName = path.join(...workspaceFileName.split(/\//));
 
-          const workspaceDirectoryPath = join(
-            directoryItem.description, directoryItem.label, dirname(workspaceFileName));
+          const workspaceDirectoryPath = path.join(
+            directoryItem.description, directoryItem.label, path.dirname(workspaceFileName));
 
-          workspaceFileName = basename(workspaceFileName);
+          workspaceFileName = path.basename(workspaceFileName);
 
           try {
             mkdirp.sync(workspaceDirectoryPath);
@@ -100,7 +100,7 @@ function saveWorkspacePrompt() {
             return;
           }
 
-          const workspaceFilePath = join(workspaceDirectoryPath, workspaceFileName) + '.code-workspace';
+          const workspaceFilePath = path.join(workspaceDirectoryPath, workspaceFileName) + '.code-workspace';
 
           const workspaceFolderPaths = (vscode.workspace.workspaceFolders || []).map(
             (workspaceFolder: vscode.WorkspaceFolder) => ({ path: workspaceFolder.uri.fsPath }));
@@ -112,13 +112,11 @@ function saveWorkspacePrompt() {
 
           const workspaceFilePathSaveFunc = () => {
             try {
-              writeFileSync(workspaceFilePath, workspaceFileContent, { encoding: 'utf8' });
+              fs.writeFileSync(workspaceFilePath, workspaceFileContent, { encoding: 'utf8' });
 
               util.refreshTreeData();
 
-              util.switchToWorkspace(<WorkspaceEntry>{
-                path: workspaceFilePath,
-              });
+              util.switchToWorkspace(new WorkspaceEntry(null, path.parse(workspaceFilePath)));
             } catch (error) {
               vscode.window.showErrorMessage(
                 'Error while trying to save workspace '
@@ -126,7 +124,7 @@ function saveWorkspacePrompt() {
             }
           }
 
-          if (existsSync(workspaceFilePath)) {
+          if (fs.existsSync(workspaceFilePath)) {
             vscode.window.showInformationMessage(
               `File ${workspaceFilePath} already exists. Do you want to override it?`, 'Yes', 'No').then(
                 (answer: string) => {
