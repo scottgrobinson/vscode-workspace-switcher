@@ -36,7 +36,7 @@
         "vscodeWorkspaceSwitcher.paths": {
           "type": "array",
           "default": [],
-          "description": "Paths of directories when `.code-workspace` files can be saved and then read from"
+          "description": "Paths of folders where `.code-workspace` files can be saved and then read from"
         },
         "vscodeWorkspaceSwitcher.codeExecutable": {
           "type": "string",

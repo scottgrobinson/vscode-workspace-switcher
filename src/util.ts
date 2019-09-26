@@ -8,7 +8,7 @@ import * as process from 'process';
 import * as glob from 'fast-glob';
 import { WorkspaceEntry } from './model/workspace-entry';
 
-export function getWorkspaceEntryDirectories(paths: string[] = null): path.ParsedPath[] {
+export function getWorkspaceEntryFolders(paths: string[] = null): path.ParsedPath[] {
   paths = paths || <string[]>vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('paths');
 
   if (!paths || !paths.length) {
@@ -57,10 +57,10 @@ export function getWorkspaceEntryDirectories(paths: string[] = null): path.Parse
 }
 
 export function gatherWorkspaceEntries(paths: string[] = null): WorkspaceEntry[] {
-  const directoryParsedPaths = getWorkspaceEntryDirectories(paths);
+  const folderParsedPaths = getWorkspaceEntryFolders(paths);
   const uniqueWorkspaceEntries = {};
 
-  return (directoryParsedPaths.reduce((acc: WorkspaceEntry[], dir: path.ParsedPath) => {
+  return (folderParsedPaths.reduce((acc: WorkspaceEntry[], dir: path.ParsedPath) => {
     const dirFormatted = path.format(dir);
 
     return fs.readdirSync(dirFormatted)
@@ -99,6 +99,7 @@ export function getFirstWorkspaceFolderName(): string {
 export function openWorkspace(workspaceEntry: WorkspaceEntry, inNewWindow: boolean = false) {
   const app = getApp();
   const command = `${app} ${inNewWindow ? '-n' : '-r'} "${workspaceEntry.path}"`;
+
   childProcess.exec(command, onCommandRun);
 }
 
@@ -176,7 +177,7 @@ export function listenForConfigurationChanges(): vscode.Disposable {
 }
 
 export function setVSCodeWorkspaceSwitcherViewContainersShow() {
-  const vscodeWorkspaceSwitcherViewContainersShow = !!getWorkspaceEntryDirectories().length;
+  const vscodeWorkspaceSwitcherViewContainersShow = !!getWorkspaceEntryFolders().length;
 
   vscode.commands.executeCommand('setContext', 'vscodeWorkspaceSwitcherViewContainersShow',
     vscodeWorkspaceSwitcherViewContainersShow);

@@ -4,7 +4,7 @@ Easily switch between workspaces
 
 ## How to use
 
-1. Set the extension's configuration option `vscodeWorkspaceSwitcher.paths` to an array of directory globs, representing the directories where your `.code-workspace` files are stored
+1. Set the extension's configuration option `vscodeWorkspaceSwitcher.paths` to an array of folder globs, representing the folders where your `.code-workspace` files are stored
 2. Save a workspace file (`.code-workspace`)
     * Use the `W`-shaped icon in the Activity Bar and then click on the icon the view's title bar,
     * or, use the extension's subsection in Explorer, in the same way,
@@ -19,7 +19,7 @@ Easily switch between workspaces
     * or, use the extension's subection in Explorer, in the same way,
     * or, Use the `Ctrl-k Ctrl-w` chord
 
-When using a `folder/name` path as the workspace's file name, the `folder` directory stucture is automatically created before the workspace file is saved.
+When using a `folder/name` path as the workspace's file name, the `folder` prefix is automatically created before the workspace file is saved.
 
 ## Requirements
 
@@ -32,8 +32,8 @@ When using a `folder/name` path as the workspace's file name, the `folder` direc
 This extension contributes the following settings:
 
 * `vscodeWorkspaceSwitcher.paths`
-    * Array of directory globs, representing the directories where your `.code-workspace` files are stored
-    * These directory globs will also be used to select where to create a `.code-workspace` file for the current workspace
+    * Array of folder globs, representing the folders where your `.code-workspace` files are stored
+    * These folder globs will also be used to select where to create a `.code-workspace` file for the current workspace
 * `vscodeWorkspaceSwitcher.codeExecutable`
     * String representing the path to VS Code's executable in case it cannot be found in `$PATH`
 * `vscodeWorkspaceSwitcher.codeInsidersExecutable`

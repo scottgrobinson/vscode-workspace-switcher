@@ -3,8 +3,11 @@ import * as vscode from 'vscode';
 import { TreeItem } from './tree-item';
 
 export class WorkspaceEntryTreeFolder extends TreeItem {
-  constructor(public readonly name: string, public readonly parsedPath: path.ParsedPath) {
-    super(name, vscode.TreeItemCollapsibleState.Collapsed);
+  constructor(
+      public readonly name: string,
+      public readonly parsedPath: path.ParsedPath,
+      collapsibleState: vscode.TreeItemCollapsibleState) {
+    super(name, collapsibleState);
 
     this.contextValue = "folder";
   }
