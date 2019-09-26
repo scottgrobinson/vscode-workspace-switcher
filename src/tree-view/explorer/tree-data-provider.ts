@@ -39,14 +39,14 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   }
 
   private getChildrenAsTree(treeItem: TreeItem): TreeItem[] {
-    let paths = null;
+    let pathGlobs = null;
 
     if (treeItem) {
-      paths = [path.join(treeItem.path, '**/')];
+      pathGlobs = [path.join(treeItem.path, '**', path.sep)];
     }
 
-    const workspaceEntries = util.gatherWorkspaceEntries(paths);
-    const directoryParsedPaths = util.getWorkspaceEntryDirectories(paths);
+    const workspaceEntries = util.gatherWorkspaceEntries(pathGlobs);
+    const directoryParsedPaths = util.getWorkspaceEntryDirectories(pathGlobs);
     const directoryPaths = directoryParsedPaths.map(path.format);
 
     const _treeItems =

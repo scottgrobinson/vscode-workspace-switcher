@@ -96,7 +96,7 @@ export function getFirstWorkspaceFolderName(): string {
   return (vscode.workspace.workspaceFolders || [{ name: undefined }])[0].name;
 }
 
-export function switchToWorkspace(workspaceEntry: WorkspaceEntry, inNewWindow: boolean = false) {
+export function openWorkspace(workspaceEntry: WorkspaceEntry, inNewWindow: boolean = false) {
   const app = getApp();
   const command = `${app} ${inNewWindow ? '-n' : '-r'} "${workspaceEntry.path}"`;
   childProcess.exec(command, onCommandRun);
@@ -119,6 +119,13 @@ export function deleteWorkspace(workspaceEntry: WorkspaceEntry, prompt: boolean)
   } else {
     fs.unlinkSync(workspaceEntry.path);
   }
+}
+
+export function openFolderWorkspaces(folderPath: string) {
+  const folderPathGlob = path.join(folderPath, '**', path.sep);
+
+  gatherWorkspaceEntries([folderPathGlob]).forEach(
+    (workspaceEntry: WorkspaceEntry) => openWorkspace(workspaceEntry, true));
 }
 
 export function getApp() {
@@ -161,6 +168,8 @@ export function listenForConfigurationChanges(): vscode.Disposable {
 
       refreshTreeData();
     } else if (event.affectsConfiguration('vscodeWorkspaceSwitcher.showTreeView')) {
+      setVSCodeWorkspaceSwitcherViewContainerTreeViewShow();
+
       refreshTreeData();
     }
   });
@@ -192,7 +201,7 @@ export function setVSCodeWorkspaceSwitcherViewInExplorerShow() {
 export function setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(value?: boolean) {
   if (value === undefined || value === null) {
     value = getVSCodeWorkspaceSwitcherViewContainerTreeViewShow();
-
+  } else {
     vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').update('showTreeView', value, true);
   }
 

@@ -14,7 +14,7 @@ export class WorkspaceEntryTreeItem extends TreeItem {
   get command(): vscode.Command {
     return {
       title: `Switch To Workspace "${this.workspaceEntry.name}"`,
-      command: 'vscodeWorkspaceSwitcher.switchWorkspace',
+      command: 'vscodeWorkspaceSwitcher.openWorkspace',
       arguments: [this.workspaceEntry],
     };
   }
