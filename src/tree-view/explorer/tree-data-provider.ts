@@ -55,7 +55,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     let pathGlobs = null;
 
     if (treeItem) {
-      pathGlobs = [path.join(treeItem.path, '**', path.sep)];
+      pathGlobs = [path.join(treeItem.path, '**')];
     }
 
     const workspaceEntries = util.gatherWorkspaceEntries(pathGlobs);

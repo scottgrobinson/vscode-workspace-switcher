@@ -57,6 +57,22 @@ export function save() {
   }
 }
 
+export function expandAll() {
+  Object.keys(cache).forEach((folderPath: string) => {
+    cache[folderPath] = vscode.TreeItemCollapsibleState.Expanded;
+  });
+
+  save();
+}
+
+export function collapseAll() {
+  Object.keys(cache).forEach((folderPath: string) => {
+    cache[folderPath] = vscode.TreeItemCollapsibleState.Collapsed;
+  });
+
+  save();
+}
+
 function getCachePath(): string {
   return path.join(os.homedir(), '.vscode-workspace-switcher', 'folder-state-cache.json');
 }

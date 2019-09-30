@@ -132,6 +132,22 @@
         }
       },
       {
+        "command": "vscodeWorkspaceSwitcher.expandTreeView",
+        "title": "Expand Tree View",
+        "icon": {
+          "light": "assets/icons/light/expand.svg",
+          "dark": "assets/icons/dark/expand.svg"
+        }
+      },
+      {
+        "command": "vscodeWorkspaceSwitcher.collapseTreeView",
+        "title": "Collapse Tree View",
+        "icon": {
+          "light": "assets/icons/light/collapse.svg",
+          "dark": "assets/icons/dark/collapse.svg"
+        }
+      },
+      {
         "command": "vscodeWorkspaceSwitcher.showTreeView",
         "title": "Show Tree View",
         "icon": {
@@ -174,6 +190,16 @@
           "group": "navigation@1"
         },
         {
+          "command": "vscodeWorkspaceSwitcher.expandTreeView",
+          "when": "view == vscodeWorkspaceSwitcherViewInActivityBar && vscodeWorkspaceSwitcherViewContainerTreeViewShow",
+          "group": "navigation@2"
+        },
+        {
+          "command": "vscodeWorkspaceSwitcher.collapseTreeView",
+          "when": "view == vscodeWorkspaceSwitcherViewInActivityBar && vscodeWorkspaceSwitcherViewContainerTreeViewShow",
+          "group": "navigation@3"
+        },
+        {
           "command": "vscodeWorkspaceSwitcher.showTreeView",
           "when": "view == vscodeWorkspaceSwitcherViewInActivityBar && !vscodeWorkspaceSwitcherViewContainerTreeViewShow",
           "group": "navigation@1"
@@ -181,22 +207,32 @@
         {
           "command": "vscodeWorkspaceSwitcher.saveWorkspace",
           "when": "view == vscodeWorkspaceSwitcherViewInActivityBar",
-          "group": "navigation@2"
+          "group": "navigation@4"
         },
         {
           "command": "vscodeWorkspaceSwitcher.reloadWorkspaces",
           "when": "view == vscodeWorkspaceSwitcherViewInActivityBar",
-          "group": "navigation@3"
+          "group": "navigation@5"
         },
         {
           "command": "vscodeWorkspaceSwitcher.closeWorkspace",
           "when": "view == vscodeWorkspaceSwitcherViewInActivityBar",
-          "group": "navigation@4"
+          "group": "navigation@6"
         },
         {
           "command": "vscodeWorkspaceSwitcher.showListView",
           "when": "view == vscodeWorkspaceSwitcherViewInExplorer && vscodeWorkspaceSwitcherViewContainerTreeViewShow",
           "group": "navigation@1"
+        },
+        {
+          "command": "vscodeWorkspaceSwitcher.expandTreeView",
+          "when": "view == vscodeWorkspaceSwitcherViewInExplorer && vscodeWorkspaceSwitcherViewContainerTreeViewShow",
+          "group": "navigation@2"
+        },
+        {
+          "command": "vscodeWorkspaceSwitcher.collapseTreeView",
+          "when": "view == vscodeWorkspaceSwitcherViewInExplorer && vscodeWorkspaceSwitcherViewContainerTreeViewShow",
+          "group": "navigation@3"
         },
         {
           "command": "vscodeWorkspaceSwitcher.showTreeView",
@@ -206,17 +242,17 @@
         {
           "command": "vscodeWorkspaceSwitcher.saveWorkspace",
           "when": "view == vscodeWorkspaceSwitcherViewInExplorer",
-          "group": "navigation@2"
+          "group": "navigation@4"
         },
         {
           "command": "vscodeWorkspaceSwitcher.reloadWorkspaces",
           "when": "view == vscodeWorkspaceSwitcherViewInExplorer",
-          "group": "navigation@3"
+          "group": "navigation@5"
         },
         {
           "command": "vscodeWorkspaceSwitcher.closeWorkspace",
           "when": "view == vscodeWorkspaceSwitcherViewInExplorer",
-          "group": "navigation@4"
+          "group": "navigation@6"
         }
       ],
       "view/item/context": [

@@ -43,6 +43,12 @@ export function activate(context: vscode.ExtensionContext) {
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.showListView',
     () => util.setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(false)));
 
+  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.expandTreeView',
+    () => util.expandTreeView()));
+
+  disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.collapseTreeView',
+    () => util.collapseTreeView()));
+
   disposables.push(vscode.commands.registerCommand('vscodeWorkspaceSwitcher.showTreeView',
     () => util.setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(true)));
 

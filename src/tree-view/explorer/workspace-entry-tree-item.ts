@@ -5,6 +5,8 @@ import { WorkspaceEntry } from '../../model/workspace-entry';
 export class WorkspaceEntryTreeItem extends TreeItem {
   constructor(public readonly workspaceEntry: WorkspaceEntry) {
     super(workspaceEntry.name, vscode.TreeItemCollapsibleState.None);
+
+    this.id = `item|${workspaceEntry.path}`;
   }
 
   get tooltip(): string {

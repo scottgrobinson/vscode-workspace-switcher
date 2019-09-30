@@ -6,6 +6,7 @@ import * as childProcess from 'child_process';
 import * as vscode from 'vscode';
 import * as process from 'process';
 import * as glob from 'fast-glob';
+import * as folderStateCache from './tree-view/explorer/folder-state-cache';
 import { WorkspaceEntry } from './model/workspace-entry';
 
 export function getWorkspaceEntryFolders(paths: string[] = null): path.ParsedPath[] {
@@ -24,13 +25,12 @@ export function getWorkspaceEntryFolders(paths: string[] = null): path.ParsedPat
   }
 
   const pathsHash = paths.reduce((acc, path) => (acc[path] = true, acc), {});
-
   const uniquePaths = Object.keys(pathsHash);
 
   const pathsAfterGlobbingHash = uniquePaths
     .map(p => {
       try {
-        return glob.sync<string>([p], { cwd: '/', onlyDirectories: true, absolute: true });
+        return glob.sync<string>([p.replace(/\\+/g, '/')], { cwd: '/', onlyDirectories: true, absolute: true });
       } catch (err) {
         return [];
       }
@@ -44,6 +44,7 @@ export function getWorkspaceEntryFolders(paths: string[] = null): path.ParsedPat
         return false;
       }
     })
+    .map(p => p.replace(/\/+/g, path.sep))
     .reduce((acc: {}, path: string) => (acc[path] = true, acc), {});
 
   return Object.keys(pathsAfterGlobbingHash)
@@ -123,7 +124,7 @@ export function deleteWorkspace(workspaceEntry: WorkspaceEntry, prompt: boolean)
 }
 
 export function openFolderWorkspaces(folderPath: string) {
-  const folderPathGlob = path.join(folderPath, '**', path.sep);
+  const folderPathGlob = path.join(folderPath, '**');
 
   gatherWorkspaceEntries([folderPathGlob]).forEach(
     (workspaceEntry: WorkspaceEntry) => openWorkspace(workspaceEntry, true));
@@ -211,6 +212,18 @@ export function setVSCodeWorkspaceSwitcherViewContainerTreeViewShow(value?: bool
 
 export function getVSCodeWorkspaceSwitcherViewContainerTreeViewShow(): boolean {
   return !!vscode.workspace.getConfiguration('vscodeWorkspaceSwitcher').get('showTreeView');
+}
+
+export function expandTreeView() {
+  folderStateCache.expandAll();
+
+  refreshTreeData();
+}
+
+export function collapseTreeView() {
+  folderStateCache.collapseAll();
+
+  refreshTreeData();
 }
 
 export function setVSCodeWorkspaceSwitcherViewContainerDeleteWorkspaceButtonShow() {
